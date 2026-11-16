@@ -1,0 +1,43 @@
+# Default experiment configuration. debug.yaml overrides a few keys for CPU runs.
+
+seed: 42
+seeds: [42, 43, 44]
+output_dir: outputs          # on Colab, point this at a Google Drive path
+
+data:
+  csv_path: data/disease_symptoms_2023.csv
+  train_size: 4000           # LoRA train set == RAG knowledge base; also try 20000
+  val_size: 500
+  test_size: 1000
+  splits_dir: ${output_dir}/splits
+
+model:
+  name: TinyLlama/TinyLlama-1.1B-intermediate-step-1431k-3T
+  # alternative: Qwen/Qwen2.5-1.5B-Instruct
+  max_new_tokens: 16
+
+lora:
+  rank: 64
+  alpha: 128                 # 2 x rank
+  dropout: 0.05
+  learning_rate: 3.0e-4
+  epochs: 3
+  batch_size: 8
+  target_modules: [q_proj, k_proj, v_proj, o_proj]
+  resume: true
+
+retrieval:
+  embedding_model: sentence-transformers/all-MiniLM-L6-v2
+  retriever: embedding       # embedding | jaccard
+  k: 5
+  k_ablation: [1, 3, 5, 10]
+  cache_dir: ${output_dir}/embeddings
+
+mmlu:
+  subjects: [anatomy, clinical_knowledge, college_biology, high_school_mathematics, world_religions]
+  questions_per_subject: 50
+
+wandb:
+  enabled: true
+  project: medqa-lora-vs-rag
+  entity: null

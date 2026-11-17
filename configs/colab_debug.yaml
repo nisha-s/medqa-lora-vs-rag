@@ -1,0 +1,31 @@
+# Tiny end-to-end run on Colab to check the pipeline before the real one.
+# Same overrides as debug.yaml, on top of the Drive paths from colab.yaml.
+
+extends: colab.yaml
+
+output_dir: /content/drive/MyDrive/medqa-lora-vs-rag/outputs_debug
+
+data:
+  train_size: 50
+  val_size: 20
+  test_size: 20
+
+lora:
+  epochs: 1
+  max_steps: 1
+  batch_size: 2
+  save_steps: 1
+  logging_steps: 1
+
+model:
+  eval_batch_size: 4
+
+retrieval:
+  k: 3
+  k_ablation: [1, 3]
+
+mmlu:
+  questions_per_subject: 2
+
+wandb:
+  enabled: false

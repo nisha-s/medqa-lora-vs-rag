@@ -5,7 +5,8 @@ seeds: [42, 43, 44]
 output_dir: outputs          # on Colab, point this at a Google Drive path
 
 data:
-  csv_path: data/disease_symptoms_2023.csv
+  csv_path: data/disease_symptoms.csv
+  # Sizes count unique symptom sets; ambiguous sets keep all their rows.
   train_size: 4000           # LoRA train set == RAG knowledge base; also try 20000
   val_size: 500
   test_size: 1000
@@ -15,6 +16,8 @@ model:
   name: TinyLlama/TinyLlama-1.1B-intermediate-step-1431k-3T
   # alternative: Qwen/Qwen2.5-1.5B-Instruct
   max_new_tokens: 16
+  eval_batch_size: 16
+  max_prompt_tokens: 1536  # RAG prompts with k=10 are ~900 tokens; context is 2048
 
 lora:
   rank: 64
@@ -24,11 +27,14 @@ lora:
   epochs: 3
   batch_size: 8
   target_modules: [q_proj, k_proj, v_proj, o_proj]
-  resume: true
+  save_steps: 200           # checkpoint cadence for resuming after a Colab disconnect
+  logging_steps: 50
+  max_seq_len: 128          # longest training example is ~90 tokens; padded per batch
+  loss_on_prompt: false     # true reproduces the notebook (loss on symptoms too)
 
 retrieval:
   embedding_model: sentence-transformers/all-MiniLM-L6-v2
-  retriever: embedding       # embedding | jaccard
+  retriever: jaccard         # jaccard | embedding; Jaccard wins the retrieval-only control
   k: 5
   k_ablation: [1, 3, 5, 10]
   cache_dir: ${output_dir}/embeddings

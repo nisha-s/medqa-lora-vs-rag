@@ -1,0 +1,9 @@
+# Colab run: data and outputs live on Google Drive so nothing is lost on disconnect.
+# Put the CSV at the csv_path below before running scripts/prepare_data.sh.
+
+extends: base.yaml
+
+output_dir: /content/drive/MyDrive/medqa-lora-vs-rag/outputs
+
+data:
+  csv_path: /content/drive/MyDrive/medqa-lora-vs-rag/data/disease_symptoms.csv

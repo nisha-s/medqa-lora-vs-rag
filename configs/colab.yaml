@@ -3,7 +3,7 @@
 
 extends: base.yaml
 
-output_dir: /content/drive/MyDrive/medqa-lora-vs-rag/outputs
+output_dir: /content/drive/MyDrive/Projects/medqa-lora-vs-rag/outputs
 
 data:
-  csv_path: /content/drive/MyDrive/medqa-lora-vs-rag/data/disease_symptoms.csv
+  csv_path: /content/drive/MyDrive/Projects/medqa-lora-vs-rag/data/disease_symptoms.csv

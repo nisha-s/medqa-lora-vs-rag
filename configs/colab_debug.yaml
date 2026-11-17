@@ -3,7 +3,7 @@
 
 extends: colab.yaml
 
-output_dir: /content/drive/MyDrive/medqa-lora-vs-rag/outputs_debug
+output_dir: /content/drive/MyDrive/Projects/medqa-lora-vs-rag/outputs_debug
 
 data:
   train_size: 50

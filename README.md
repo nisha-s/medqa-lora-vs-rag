@@ -90,8 +90,8 @@ Open `notebooks/colab_runner.ipynb` in Colab with a GPU runtime. It clones
 the repo, installs `requirements.txt`, mounts Google Drive, reads the W&B key
 from Colab secrets (or disables logging if there is none) and runs the
 scripts with `configs/colab.yaml`, which puts data and outputs under
-`MyDrive/medqa-lora-vs-rag/`. Put the CSV at
-`MyDrive/medqa-lora-vs-rag/data/disease_symptoms.csv` first. The notebook
+`MyDrive/Projects/medqa-lora-vs-rag/`. Put the CSV at
+`MyDrive/Projects/medqa-lora-vs-rag/data/disease_symptoms.csv` first. The notebook
 starts with a one-step smoke run (`configs/colab_debug.yaml`) before the
 real one. After a disconnect, re-run from the top: finished runs are skipped
 and training resumes from its last checkpoint.

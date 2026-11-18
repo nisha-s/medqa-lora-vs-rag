@@ -6,7 +6,9 @@ set -euo pipefail
 CONFIG="${1:-configs/base.yaml}"
 export PYTHONPATH="${PYTHONPATH:-}:src"
 
-read_list() { python -c "import yaml,sys; v=yaml.safe_load(open('$CONFIG'))$1; print(*v)"; }
+# load_config resolves `extends`, so configs like colab_debug.yaml that inherit
+# seeds and k_ablation from base.yaml read correctly here.
+read_list() { python -c "from medqa.config import load_config; print(*load_config('$CONFIG')$1)"; }
 SEEDS=$(read_list "['seeds']")
 KS=$(read_list "['retrieval']['k_ablation']")
 

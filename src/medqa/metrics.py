@@ -1,4 +1,4 @@
-"""Scoring: exact match, semantic similarity, ROUGE-L and MMLU log-likelihood."""
+"""Scoring helpers: exact match, semantic similarity, ROUGE-L, and MMLU log-likelihood."""
 
 import re
 import string
@@ -24,7 +24,7 @@ def rouge_l(prediction: str, target: str) -> float:
     ref = str(target).lower().split()
     if not hyp or not ref:
         return 0.0
-    # Longest common subsequence by dynamic programming, one row at a time.
+    # Longest common subsequence, filled one DP row at a time to keep memory flat.
     previous = [0] * (len(ref) + 1)
     for h in hyp:
         current = [0]
@@ -45,9 +45,10 @@ def rouge_l(prediction: str, target: str) -> float:
 def semantic_similarity(
     predictions: list[str], targets: list[str], embedder
 ) -> list[float]:
-    """Cosine similarity between MiniLM embeddings, clipped at 0 as in the notebook.
+    """Cosine similarity between MiniLM embeddings, clipped at 0 like the notebook did.
 
-    Batched because encoding one pair at a time dominated the notebook's runtime.
+    Encoded in one batch; doing it a pair at a time was the notebook's main
+    bottleneck.
     """
     import numpy as np
 

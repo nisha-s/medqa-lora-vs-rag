@@ -1,4 +1,4 @@
-"""Greedy generation with short outputs, cut at the first newline."""
+"""Greedy decoding. Outputs are short and everything past the first newline is dropped."""
 
 import time
 from typing import Any
@@ -10,7 +10,7 @@ def first_line(text: str) -> str:
 
 
 def pick_dtype(device: str):
-    """bfloat16 on CUDA (TinyLlama was trained in it), float32 elsewhere."""
+    """bfloat16 on CUDA, which is what TinyLlama was trained in; float32 otherwise."""
     import torch
 
     return torch.bfloat16 if device == "cuda" else torch.float32
@@ -23,8 +23,9 @@ def load_model(model_name: str, adapter_path: str | None, device: str):
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
-    # Left padding keeps the prompt's last token at the end for every row in
-    # a batch; left truncation drops the oldest RAG examples, never the query.
+    # Pad and truncate on the left. Padding left lines up every prompt's last
+    # token at the same position in the batch; truncating left means an
+    # over-long RAG prompt loses its oldest examples, never the query itself.
     tokenizer.padding_side = "left"
     tokenizer.truncation_side = "left"
 

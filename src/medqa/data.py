@@ -24,8 +24,8 @@ log = logging.getLogger(__name__)
 
 LABEL_COL = "diseases"
 KEY_SEP = "|"
-# Ambiguous symptom sets are stratified as their own group so each split gets
-# the same share of them and the accuracy ceilings stay comparable.
+# Treat ambiguous sets as one stratum of their own, so every split ends up with
+# a similar share of them and the ceilings stay comparable across splits.
 AMBIGUOUS = "__ambiguous__"
 SPLIT_NAMES = ("train", "val", "test", "train_pool")
 
@@ -41,7 +41,7 @@ def load_raw(csv_path: str | Path) -> pd.DataFrame:
 def rows_to_cases(df: pd.DataFrame) -> pd.DataFrame:
     """Turn each row into (symptom tuple, key, symptom text, disease).
 
-    Symptoms keep the CSV column order, as in the original notebook.
+    Symptom order follows the CSV columns, same as the original notebook.
     """
     label_col = LABEL_COL if LABEL_COL in df.columns else df.columns[0]
     symptom_cols = [c for c in df.columns if c != label_col]
@@ -89,10 +89,10 @@ def unique_symptom_sets(cases: pd.DataFrame) -> pd.DataFrame:
 
 
 def stratified_take(sets: pd.DataFrame, n: int) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Take the first n rows spread across strat groups in proportion to size.
+    """Take n rows, spread across strata in proportion to each stratum's size.
 
-    `sets` must already be shuffled. Uses largest-remainder rounding, so small
-    groups may get zero rows: stratified where possible, exact in total.
+    `sets` has to be shuffled already. Rounding is largest-remainder, so the
+    total is exactly n even though a small stratum can come away with nothing.
     """
     if n > len(sets):
         raise ValueError(f"asked for {n} symptom sets but only {len(sets)} remain")

@@ -24,7 +24,7 @@ from medqa.prompts import training_example
 
 log = logging.getLogger(__name__)
 
-IGNORE_INDEX = -100  # label value the loss skips
+IGNORE_INDEX = -100  # label value the cross-entropy loss ignores
 
 
 def model_slug(model_name: str) -> str:
@@ -44,10 +44,11 @@ def checkpoint_dir(output_dir: str | Path, model_name: str, seed: int) -> Path:
 def tokenize_example(
     tokenizer, prompt: str, completion: str, max_len: int, loss_on_prompt: bool
 ) -> dict[str, list[int]]:
-    """Tokenize prompt + completion + eos; mask the prompt in labels unless asked not to.
+    """Tokenize prompt + completion + eos, masking the prompt in the labels by default.
 
-    The prompt is tokenized on its own only to measure its length, so the
-    joint tokenization is exactly what the model sees at inference time.
+    The prompt is tokenized separately only to find out how long it is. The ids
+    themselves come from tokenizing prompt and completion together, which is
+    exactly what the model sees at inference time.
     """
     prompt_len = len(tokenizer(prompt)["input_ids"])
     ids = tokenizer(prompt + completion)["input_ids"] + [tokenizer.eos_token_id]
@@ -243,7 +244,7 @@ def train(config: dict[str, Any], seed: int) -> dict[str, Any]:
         result.training_loss,
     )
 
-    # The adapter is saved, so the resume checkpoints are no longer needed.
+    # Adapter is on disk now, so the resume checkpoints have done their job.
     shutil.rmtree(out_ckpt, ignore_errors=True)
     return stats
 

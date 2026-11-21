@@ -95,10 +95,10 @@ class JaccardRetriever:
     def _vectorize(
         self, symptom_lists: list[tuple[str, ...]]
     ) -> tuple[np.ndarray, np.ndarray]:
-        """Binary matrix over the training vocabulary plus each row's true set size.
+        """Binary matrix over the training vocabulary, with each row's real set size.
 
-        Symptoms outside the vocabulary cannot match anything, but they still
-        count towards the set size so the union is right.
+        A symptom the training set never saw can't match anything, but it still
+        counts towards the set size so the Jaccard union comes out right.
         """
         matrix = np.zeros((len(symptom_lists), len(self.vocab)), dtype=np.float32)
         sizes = np.zeros(len(symptom_lists), dtype=np.float32)
@@ -134,7 +134,7 @@ class JaccardRetriever:
 def top_k_indices(similarity: np.ndarray, k: int) -> np.ndarray:
     """Row-wise indices of the k largest values, sorted most similar first."""
     k = min(k, similarity.shape[1])
-    # argpartition is O(n); the final sort only touches k items per row.
+    # argpartition is linear; only the k picked items per row get sorted.
     candidates = np.argpartition(-similarity, k - 1, axis=1)[:, :k]
     scores = np.take_along_axis(similarity, candidates, axis=1)
     order = np.argsort(-scores, axis=1, kind="stable")
@@ -144,9 +144,10 @@ def top_k_indices(similarity: np.ndarray, k: int) -> np.ndarray:
 def build_retriever(
     config: dict[str, Any], name: str | None = None, device: str | None = None
 ):
-    """Construct the retriever named in config (or `name` if given), unbuilt.
+    """Build the retriever named in the config, or `name` if you pass one. Not yet fitted.
 
-    Torch is only imported for the embedding retriever, so Jaccard runs stay light.
+    The embedding retriever is the only one that pulls in torch, so a Jaccard
+    run stays dependency-light.
     """
     cfg = config["retrieval"]
     name = name or cfg["retriever"]

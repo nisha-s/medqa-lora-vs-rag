@@ -1,4 +1,9 @@
-"""Load YAML configs with one level of `extends` and ${output_dir} expansion."""
+"""Small YAML config loader.
+
+A config can name a parent with `extends:` and inherit from it (one level deep,
+though parents can chain). Anywhere a value contains ${output_dir} it gets
+swapped for the resolved output directory, so paths stay in one place.
+"""
 
 import copy
 from pathlib import Path
@@ -10,7 +15,7 @@ import yaml
 def load_config(path: str | Path) -> dict[str, Any]:
     """Load a YAML config, merging in its `extends` parent if present."""
     cfg = _load_with_parents(Path(path))
-    # Expand only after merging so a child can override output_dir.
+    # Expand after the merge, so a child that overrides output_dir still wins.
     return _expand_output_dir(cfg, cfg["output_dir"])
 
 
@@ -49,7 +54,7 @@ def _expand_output_dir(value: Any, output_dir: str) -> Any:
 
 def pick_device() -> str:
     """Return "cuda", "mps" or "cpu", whichever is available first."""
-    import torch  # imported here so data prep works without torch installed
+    import torch  # kept local so data prep can run without torch installed
 
     if torch.cuda.is_available():
         return "cuda"
